@@ -64,7 +64,8 @@ public abstract class Usuario {
         return historialVuelos;
     }
 	
-	
+	public abstract void registrar();
+	public abstract boolean iniciarSesion(String email, String contraseña);
 
 	
 
