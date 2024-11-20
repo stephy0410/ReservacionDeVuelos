@@ -2,6 +2,10 @@ package interfaces.graficas;
 
 import javax.swing.*;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public class CrearCuentaFrame extends JFrame {
 
@@ -60,12 +64,41 @@ public class CrearCuentaFrame extends JFrame {
             String confirmPassword = new String(txtConfirmPassword.getPassword());
             if (!password.equals(confirmPassword)) {
                 JOptionPane.showMessageDialog(this, "Las contraseñas no coinciden.", "Error", JOptionPane.ERROR_MESSAGE);
-            } else if (txtNombre.getText().isEmpty() || txtCorreo.getText().isEmpty() || password.isEmpty()) {
+                return;
+            } 
+            if (txtNombre.getText().isEmpty() || txtCorreo.getText().isEmpty() || password.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Por favor, completa todos los campos.", "Error", JOptionPane.WARNING_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(this, "Cuenta creada exitosamente.");
-                dispose();
-            }
+                return;
+            } 
+            Connection connection = null;
+            	try {
+            		
+                	// Database connectjdbc:postgresql://localhost/test?user=fred&password=secret&ssl=true
+                	// Conectamos con la base de datos
+            		connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "Brownie5");
+					final String SQL_INSERT = "INSERT INTO CLIENTE (usuario, nombre, email,contraseña) VALUES (?,?,?,?)";
+					PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT);
+					preparedStatement.setString(1, txtNombre.getText());
+					preparedStatement.setString(2, txtNombre.getText());
+					preparedStatement.setString(3, txtCorreo.getText());
+					preparedStatement.setString(4, txtPassword.getPassword().toString());
+					int row = preparedStatement.executeUpdate();
+					if(row > 0) {
+						JOptionPane.showMessageDialog(this, "Cuenta creada exitosamente.");
+						dispose();
+					}
+					connection.close();
+				} catch (SQLException e1) {
+					try {
+						connection.close();
+					} catch (SQLException e2) {
+						// TODO Auto-generated catch block
+						e2.printStackTrace();
+					}
+					JOptionPane.showMessageDialog(this, "Error  inesperado "+ e1.getMessage());
+				}
+                
+            
         });
         backgroundPanel.add(btnCrearCuenta);
 
